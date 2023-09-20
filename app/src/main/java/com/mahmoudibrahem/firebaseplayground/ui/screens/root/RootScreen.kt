@@ -41,7 +41,8 @@ import com.mahmoudibrahem.firebaseplayground.util.shadow
 fun RootScreen(
     viewModel: RootViewModel = hiltViewModel(),
     onNavigateToAuth: () -> Unit,
-    onNavigateToRemoteConfig: () -> Unit
+    onNavigateToRemoteConfig: () -> Unit,
+    onNavigateToRealtimeDatabase: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -75,7 +76,8 @@ fun RootScreen(
                     onFeatureClicked = { id ->
                         when (id) {
                             1 -> onNavigateToAuth()
-                            2 ->onNavigateToRemoteConfig()
+                            2 -> onNavigateToRemoteConfig()
+                            3 -> onNavigateToRealtimeDatabase()
                         }
                     }
                 )

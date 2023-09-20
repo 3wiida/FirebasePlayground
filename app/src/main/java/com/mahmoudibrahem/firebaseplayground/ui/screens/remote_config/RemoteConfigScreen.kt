@@ -20,7 +20,6 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.mahmoudibrahem.firebaseplayground.ui.theme.SfDisplay
 
-
 @Composable
 fun RemoteConfigScreen(
     viewModel: RemoteConfigViewModel = hiltViewModel()

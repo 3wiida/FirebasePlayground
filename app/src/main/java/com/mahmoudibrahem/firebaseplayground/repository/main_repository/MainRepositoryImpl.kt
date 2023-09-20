@@ -17,6 +17,11 @@ class MainRepositoryImpl : MainRepository {
                 name="Remote Config",
                 image = R.drawable.remote_config_ic
             ),
+            FirebaseFeature(
+                id = 3,
+                name="Realtime Database",
+                image = R.drawable.database_ic
+            )
         )
     }
 
@@ -26,12 +31,7 @@ class MainRepositoryImpl : MainRepository {
                 id = 1,
                 name = "Email & Password",
                 image = R.drawable.email_ic
-            ),
-            AuthMethod(
-                id = 2,
-                name = "Register with Google",
-                image = R.drawable.google_ic
-            ),
+            )
         )
     }
 }

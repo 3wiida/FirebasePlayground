@@ -4,7 +4,7 @@ object Constants {
     //Screens routes
     const val REMOTE_CONFIG_SCREEN_ROUTE="REMOTE_CONFIG_SCREEN_ROUTE"
     const val EMAIL_PASSWORD_REGISTRATION_SCREEN_ROUTE = "EMAIL_PASSWORD_REGISTRATION_SCREEN_ROUTE"
-    const val EMAIL_PASSWORD_LOGIN_SCREEN_ROUTE = "EMAIL_PASSWORD_LOGIN_SCREEN_ROUTE"
+    const val REALTIME_DATABASE_SCREEN_ROUTE = "REALTIME_DATABASE_SCREEN_ROUTE"
     const val ROOT_SCREEN_ROUTE="ROOT_SCREEN_ROUTE"
     const val AUTH_SCREENS_ROUTE="AUTH_SCREENS_ROUTE"
 
@@ -15,4 +15,8 @@ object Constants {
 
     //Remote Config Keys
     const val APP_VERSION_KEY="app_version"
+
+    //Realtime Database
+    const val SCHOOLS_REF_KEY="Schools"
+    const val STUDENTS_REF_KEY="students"
 }
