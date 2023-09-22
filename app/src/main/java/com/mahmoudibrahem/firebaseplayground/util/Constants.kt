@@ -5,6 +5,7 @@ object Constants {
     const val REMOTE_CONFIG_SCREEN_ROUTE="REMOTE_CONFIG_SCREEN_ROUTE"
     const val EMAIL_PASSWORD_REGISTRATION_SCREEN_ROUTE = "EMAIL_PASSWORD_REGISTRATION_SCREEN_ROUTE"
     const val REALTIME_DATABASE_SCREEN_ROUTE = "REALTIME_DATABASE_SCREEN_ROUTE"
+    const val FIRESTORE_DATABASE_SCREEN_ROUTE = "FIRESTORE_DATABASE_SCREEN_ROUTE"
     const val ROOT_SCREEN_ROUTE="ROOT_SCREEN_ROUTE"
     const val AUTH_SCREENS_ROUTE="AUTH_SCREENS_ROUTE"
 
@@ -18,5 +19,10 @@ object Constants {
 
     //Realtime Database
     const val SCHOOLS_REF_KEY="Schools"
-    const val STUDENTS_REF_KEY="students"
+
+    //Firestore Database
+    const val SCHOOLS_COLLECTION="schools"
+    const val ID_FIELD="id"
+    const val NAME_FIELD="name"
+    const val ADDRESS_FIELD="address"
 }

@@ -21,6 +21,11 @@ class MainRepositoryImpl : MainRepository {
                 id = 3,
                 name="Realtime Database",
                 image = R.drawable.database_ic
+            ),
+            FirebaseFeature(
+                id = 4,
+                name="Firestore Database",
+                image = R.drawable.firestore_ic
             )
         )
     }

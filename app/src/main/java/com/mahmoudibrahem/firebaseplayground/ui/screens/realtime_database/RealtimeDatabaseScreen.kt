@@ -114,11 +114,11 @@ fun RealtimeDatabaseScreen(
                 items(count = viewModel.schoolList.size) { index ->
                     SchoolItem(
                         school = viewModel.schoolList[index],
-                        onEditClicked = { id, schoolName, schoolAddress ->
+                        onEditClicked = { school ->
                             isShowSaveSchoolBottomSheet = true
-                            initName = schoolName
-                            initAddress = schoolAddress
-                            initId = id
+                            initName = school.name
+                            initAddress = school.address
+                            initId = school.id
                         },
                         onDeleteClicked = {
                             viewModel.deleteSchool(it)
@@ -169,7 +169,7 @@ fun RealtimeDatabaseScreen(
 @Composable
 fun SchoolItem(
     school: School,
-    onEditClicked: (id: String, schoolName: String, schoolAddress: String) -> Unit,
+    onEditClicked: (School) -> Unit,
     onDeleteClicked: (school: School) -> Unit
 ) {
     Box(
@@ -206,7 +206,7 @@ fun SchoolItem(
         ) {
             IconButton(
                 onClick = {
-                    onEditClicked(school.id, school.name, school.address)
+                    onEditClicked(school)
                 },
 
                 ) {

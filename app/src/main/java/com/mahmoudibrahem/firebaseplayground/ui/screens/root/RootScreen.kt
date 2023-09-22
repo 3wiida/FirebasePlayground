@@ -42,7 +42,8 @@ fun RootScreen(
     viewModel: RootViewModel = hiltViewModel(),
     onNavigateToAuth: () -> Unit,
     onNavigateToRemoteConfig: () -> Unit,
-    onNavigateToRealtimeDatabase: () -> Unit
+    onNavigateToRealtimeDatabase: () -> Unit,
+    onNavigateToFirestore: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -78,6 +79,7 @@ fun RootScreen(
                             1 -> onNavigateToAuth()
                             2 -> onNavigateToRemoteConfig()
                             3 -> onNavigateToRealtimeDatabase()
+                            4 -> onNavigateToFirestore()
                         }
                     }
                 )

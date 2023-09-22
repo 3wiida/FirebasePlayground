@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.database.ktx.getValue
 import com.mahmoudibrahem.firebaseplayground.pojo.School
-import com.mahmoudibrahem.firebaseplayground.repository.firebase_repository.FirebaseRepository
+import com.mahmoudibrahem.firebaseplayground.repository.realtime_db_repository.RealtimeDatabaseRepository
 import com.mahmoudibrahem.firebaseplayground.util.FirebaseResult
 import com.mahmoudibrahem.firebaseplayground.util.PossibleFormErrors
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,7 +15,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class RealtimeDatabaseViewModel @Inject constructor(
-    private val firebaseRepository: FirebaseRepository
+    private val databaseRepository: RealtimeDatabaseRepository
 ) : ViewModel() {
 
     val upsertSchoolState = mutableStateOf<FirebaseResult<*>>(FirebaseResult.Empty)
@@ -30,7 +30,7 @@ class RealtimeDatabaseViewModel @Inject constructor(
 
     fun upsertSchool(school: School, action: SaveAction) {
         upsertSchoolState.value = FirebaseResult.Loading
-        val task = firebaseRepository.upsertSchool(
+        val task = databaseRepository.upsertSchool(
             school = School(
                 id = school.id,
                 name = school.name,
@@ -53,7 +53,7 @@ class RealtimeDatabaseViewModel @Inject constructor(
 
     fun deleteSchool(school: School) {
         deleteSchoolState.value = FirebaseResult.Loading
-        firebaseRepository.deleteSchool(school).addOnSuccessListener {
+        databaseRepository.deleteSchool(school).addOnSuccessListener {
             deleteSchoolState.value = FirebaseResult.Success(data = "Deleted Successfully")
         }.addOnFailureListener {
             deleteSchoolState.value = FirebaseResult.Failure(msg = it.message.toString())
@@ -61,7 +61,7 @@ class RealtimeDatabaseViewModel @Inject constructor(
     }
 
     private fun observeSchoolUpdates() {
-        firebaseRepository.observeSchoolsUpdates { dataSnapshot ->
+        databaseRepository.observeSchoolsUpdates { dataSnapshot ->
             schoolList.clear()
             viewModelScope.launch {
                 dataSnapshot.children.forEach { child ->

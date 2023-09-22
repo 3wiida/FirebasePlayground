@@ -3,17 +3,15 @@ package com.mahmoudibrahem.firebaseplayground.ui.screens.auth.email_password
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import com.mahmoudibrahem.firebaseplayground.repository.firebase_repository.FirebaseRepository
+import com.mahmoudibrahem.firebaseplayground.repository.auth_repository.AuthRepository
 import com.mahmoudibrahem.firebaseplayground.util.FirebaseResult
 import com.mahmoudibrahem.firebaseplayground.util.PossibleFormErrors
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
 class EmailPasswordRegisterViewModel @Inject constructor(
-    private val firebaseRepository: FirebaseRepository
+    private val authRepository: AuthRepository
 ) : ViewModel() {
 
     val registerState = mutableStateOf<FirebaseResult<*>>(FirebaseResult.Empty)
@@ -28,7 +26,7 @@ class EmailPasswordRegisterViewModel @Inject constructor(
         isFormValid()
         if (formErrors.isEmpty()) {
             registerState.value = FirebaseResult.Loading
-            firebaseRepository.registerEmailPassword(
+            authRepository.registerEmailPassword(
                 email = email.value,
                 password = password.value
             ).addOnSuccessListener {
@@ -47,7 +45,7 @@ class EmailPasswordRegisterViewModel @Inject constructor(
         isFormValid()
         if (formErrors.isEmpty()) {
             loginState.value = FirebaseResult.Loading
-            firebaseRepository.loginEmailPassword(
+            authRepository.loginEmailPassword(
                 email = email.value,
                 password = password.value
             ).addOnSuccessListener {
