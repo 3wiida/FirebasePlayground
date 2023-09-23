@@ -22,4 +22,5 @@ interface FirestoreRepository {
     fun addSchool(school: School): Task<Void>
 
     fun editSchool(schoolId: String, newName: String, newAddress: String): Task<Void>
+
 }

@@ -61,4 +61,5 @@ class FirestoreRepositoryImpl @Inject constructor(
             ADDRESS_FIELD, newAddress
         )
     }
+
 }

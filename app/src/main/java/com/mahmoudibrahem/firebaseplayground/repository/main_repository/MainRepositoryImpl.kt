@@ -26,6 +26,11 @@ class MainRepositoryImpl : MainRepository {
                 id = 4,
                 name="Firestore Database",
                 image = R.drawable.firestore_ic
+            ),
+            FirebaseFeature(
+                id = 5,
+                name="Cloud Storage",
+                image = R.drawable.cloud_storage_ic
             )
         )
     }

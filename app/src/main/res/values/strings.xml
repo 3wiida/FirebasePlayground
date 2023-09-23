@@ -12,4 +12,10 @@
     <string name="school_address">School Address</string>
     <string name="invalid_school_address">Invalid school Address</string>
     <string name="invalid_school_name">Invalid school name</string>
+    <string name="cloud_storage">Cloud Storage</string>
+    <string name="cloud_storage_des">Cloud storage allow us to upload and download files in remote cloud server.\nyou can upload any image from your device to the cloud storage\nyou can retrieve all images that exists in the storage</string>
+    <string name="image_name">Image name</string>
+    <string name="selectimage">SelectImage</string>
+    <string name="show_all_images">show all Images</string>
+    <string name="add_caption">add caption</string>
 </resources>

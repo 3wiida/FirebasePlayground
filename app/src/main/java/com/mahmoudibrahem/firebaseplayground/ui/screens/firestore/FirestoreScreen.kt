@@ -185,7 +185,7 @@ fun SearchSection(
     uiState: FirestoreUiState,
     onSearchQueryChanged: (String) -> Unit = {},
     onSearchClicked: () -> Unit = {}
-) {
+) { 
     Row(
         modifier = modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,

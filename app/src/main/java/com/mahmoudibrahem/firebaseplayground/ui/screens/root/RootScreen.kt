@@ -43,7 +43,8 @@ fun RootScreen(
     onNavigateToAuth: () -> Unit,
     onNavigateToRemoteConfig: () -> Unit,
     onNavigateToRealtimeDatabase: () -> Unit,
-    onNavigateToFirestore: () -> Unit
+    onNavigateToFirestore: () -> Unit,
+    onNavigateToCloudStorage: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -80,6 +81,7 @@ fun RootScreen(
                             2 -> onNavigateToRemoteConfig()
                             3 -> onNavigateToRealtimeDatabase()
                             4 -> onNavigateToFirestore()
+                            5 -> onNavigateToCloudStorage()
                         }
                     }
                 )

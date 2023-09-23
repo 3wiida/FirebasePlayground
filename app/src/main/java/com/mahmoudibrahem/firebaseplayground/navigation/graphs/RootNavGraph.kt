@@ -5,6 +5,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.mahmoudibrahem.firebaseplayground.navigation.screens.Destinations
+import com.mahmoudibrahem.firebaseplayground.ui.screens.cloud_storage.CloudStorageScreen
 import com.mahmoudibrahem.firebaseplayground.ui.screens.firestore.FirestoreScreen
 import com.mahmoudibrahem.firebaseplayground.ui.screens.realtime_database.RealtimeDatabaseScreen
 import com.mahmoudibrahem.firebaseplayground.ui.screens.remote_config.RemoteConfigScreen
@@ -26,7 +27,8 @@ fun RootNavGraph(navController: NavHostController) {
                 onNavigateToAuth = { navController.navigate(route = AUTH_GRAPH_ROUTE) },
                 onNavigateToRemoteConfig = { navController.navigate(route = Destinations.RemoteConfigScreen.route) },
                 onNavigateToRealtimeDatabase = { navController.navigate(route = Destinations.RealtimeDatabaseScreen.route) },
-                onNavigateToFirestore = { navController.navigate(route = Destinations.FirestoreDatabaseScreen.route) }
+                onNavigateToFirestore = { navController.navigate(route = Destinations.FirestoreDatabaseScreen.route) },
+                onNavigateToCloudStorage = {navController.navigate(route=Destinations.StorageScreen.route)}
             )
         }
         composable(route = Destinations.RemoteConfigScreen.route) {
@@ -37,6 +39,9 @@ fun RootNavGraph(navController: NavHostController) {
         }
         composable(route = Destinations.FirestoreDatabaseScreen.route) {
             FirestoreScreen()
+        }
+        composable(route=Destinations.StorageScreen.route){
+            CloudStorageScreen()
         }
         authNavGraph(navController = navController)
     }
