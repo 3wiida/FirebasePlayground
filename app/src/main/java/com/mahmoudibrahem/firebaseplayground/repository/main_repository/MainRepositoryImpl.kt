@@ -9,28 +9,33 @@ class MainRepositoryImpl : MainRepository {
         return listOf(
             FirebaseFeature(
                 id = 1,
-                name="Authentication",
+                name = "Authentication",
                 image = R.drawable.auth_ic
             ),
             FirebaseFeature(
                 id = 2,
-                name="Remote Config",
+                name = "Remote Config",
                 image = R.drawable.remote_config_ic
             ),
             FirebaseFeature(
                 id = 3,
-                name="Realtime Database",
+                name = "Realtime Database",
                 image = R.drawable.database_ic
             ),
             FirebaseFeature(
                 id = 4,
-                name="Firestore Database",
+                name = "Firestore Database",
                 image = R.drawable.firestore_ic
             ),
             FirebaseFeature(
                 id = 5,
-                name="Cloud Storage",
+                name = "Cloud Storage",
                 image = R.drawable.cloud_storage_ic
+            ),
+            FirebaseFeature(
+                id = 6,
+                name = "Cloud Messaging",
+                image = R.drawable.cloud_messaging_ic
             )
         )
     }

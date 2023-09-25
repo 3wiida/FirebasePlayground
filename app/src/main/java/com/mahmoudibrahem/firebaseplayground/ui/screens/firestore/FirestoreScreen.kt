@@ -5,36 +5,23 @@ import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -43,11 +30,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.mahmoudibrahem.firebaseplayground.R
+import com.mahmoudibrahem.firebaseplayground.composables.AddEditBottomSheet
+import com.mahmoudibrahem.firebaseplayground.composables.OrderSection
+import com.mahmoudibrahem.firebaseplayground.composables.SchoolItem
+import com.mahmoudibrahem.firebaseplayground.composables.SearchSection
 import com.mahmoudibrahem.firebaseplayground.pojo.School
-import com.mahmoudibrahem.firebaseplayground.ui.screens.realtime_database.SchoolItem
-import com.mahmoudibrahem.firebaseplayground.ui.theme.MainColor
 import com.mahmoudibrahem.firebaseplayground.ui.theme.SfDisplay
-import com.mahmoudibrahem.firebaseplayground.util.PossibleFormErrors
 
 @Composable
 fun FirestoreScreen(
@@ -65,9 +53,12 @@ fun FirestoreScreen(
         onEditSchoolClicked = viewModel::onEditSchoolClicked,
         onDeleteSchoolClicked = viewModel::onDeleteSchoolClicked
     )
-    if(uiState.showBottomSheet){
-        BottomSheet(
-            uiState = uiState,
+    if (uiState.showBottomSheet) {
+        AddEditBottomSheet(
+            schoolName = uiState.schoolName,
+            schoolAddress = uiState.schoolAddress,
+            isButtonLoading = uiState.isButtonLoading,
+            errors = uiState.formErrors,
             onDismissRequest = viewModel::onBottomSheetDismiss,
             onSchoolNameChanged = viewModel::onSchoolNameChanged,
             onSchoolAddressChanged = viewModel::onSchoolAddressChanged,
@@ -75,11 +66,11 @@ fun FirestoreScreen(
         )
     }
     LaunchedEffect(key1 = uiState.errorMsg) {
-        if(uiState.errorMsg.isNotEmpty())
+        if (uiState.errorMsg.isNotEmpty())
             Toast.makeText(context, uiState.errorMsg, Toast.LENGTH_LONG).show()
     }
     LaunchedEffect(key1 = uiState.successMsg) {
-        if(uiState.successMsg.isNotEmpty())
+        if (uiState.successMsg.isNotEmpty())
             Toast.makeText(context, uiState.successMsg, Toast.LENGTH_LONG).show()
     }
 }
@@ -118,7 +109,7 @@ fun FirestoreContent(
             )
             Spacer(modifier = Modifier.height(16.dp))
             SearchSection(
-                uiState = uiState,
+                searchQuery = uiState.searchQuery,
                 onSearchQueryChanged = onSearchQueryChanged,
                 onSearchClicked = onSearchClicked
             )
@@ -157,59 +148,6 @@ fun HeaderSection(
 }
 
 @Composable
-fun OrderSection(
-    modifier: Modifier = Modifier,
-    onOrderAscClicked: () -> Unit = {},
-    onOrderDesClicked: () -> Unit = {}
-) {
-    Row(
-        modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceEvenly
-    ) {
-        Button(
-            onClick = { onOrderAscClicked() }
-        ) {
-            Text(text = stringResource(R.string.order_asc))
-        }
-        Button(
-            onClick = { onOrderDesClicked() }
-        ) {
-            Text(text = stringResource(R.string.order_des))
-        }
-    }
-}
-
-@Composable
-fun SearchSection(
-    modifier: Modifier = Modifier,
-    uiState: FirestoreUiState,
-    onSearchQueryChanged: (String) -> Unit = {},
-    onSearchClicked: () -> Unit = {}
-) { 
-    Row(
-        modifier = modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        TextField(
-            modifier = Modifier.weight(2f),
-            value = uiState.searchQuery,
-            onValueChange = onSearchQueryChanged,
-            singleLine = true,
-            placeholder = { Text(text = stringResource(R.string.search)) }
-        )
-        Spacer(modifier = Modifier.width(10.dp))
-        Button(
-            modifier = Modifier
-                .weight(1f)
-                .clip(RoundedCornerShape(2.dp)),
-            onClick = onSearchClicked
-        ) {
-            Text(text = stringResource(R.string.search))
-        }
-    }
-}
-
-@Composable
 fun DataSection(
     modifier: Modifier = Modifier,
     data: List<School>,
@@ -230,96 +168,7 @@ fun DataSection(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun BottomSheet(
-    uiState: FirestoreUiState,
-    onDismissRequest: () -> Unit,
-    onSchoolNameChanged: (String) -> Unit,
-    onSchoolAddressChanged: (String) -> Unit,
-    onSaveBtnClicked: () -> Unit
-) {
-    ModalBottomSheet(
-        onDismissRequest = onDismissRequest
-    ) {
-        BottomSheetContent(
-            uiState = uiState,
-            onSchoolNameChanged = onSchoolNameChanged,
-            onSchoolAddressChanged = onSchoolAddressChanged,
-            onSaveBtnClicked = onSaveBtnClicked
-        )
-    }
-}
 
-
-@Composable
-fun BottomSheetContent(
-    uiState: FirestoreUiState,
-    onSchoolNameChanged: (String) -> Unit,
-    onSchoolAddressChanged: (String) -> Unit,
-    onSaveBtnClicked: () -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(24.dp)
-    ) {
-        TextField(
-            modifier = Modifier.fillMaxWidth(),
-            value = uiState.schoolName,
-            onValueChange = onSchoolNameChanged,
-            label = { Text(text = stringResource(R.string.school_name)) },
-            isError = uiState.formErrors.contains(PossibleFormErrors.INVALID_SCHOOL_NAME),
-            supportingText = {
-                if (uiState.formErrors.contains(PossibleFormErrors.INVALID_SCHOOL_NAME)) {
-                    Text(
-                        text = stringResource(R.string.invalid_school_name),
-                        color = MaterialTheme.colorScheme.error
-                    )
-                }
-            }
-        )
-        Spacer(modifier = Modifier.height(24.dp))
-        TextField(
-            value = uiState.schoolAddress,
-            onValueChange = onSchoolAddressChanged,
-            label = { Text(text = stringResource(R.string.school_address)) },
-            modifier = Modifier.fillMaxWidth(),
-            isError = uiState.formErrors.contains(PossibleFormErrors.INVALID_SCHOOL_ADDRESS),
-            supportingText = {
-                if (uiState.formErrors.contains(PossibleFormErrors.INVALID_SCHOOL_ADDRESS)) {
-                    Text(
-                        text = stringResource(R.string.invalid_school_address),
-                        color = MaterialTheme.colorScheme.error
-                    )
-                }
-            }
-        )
-        Button(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(52.dp)
-                .clip(RoundedCornerShape(8.dp)),
-            onClick = onSaveBtnClicked,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MainColor,
-                disabledContainerColor = MainColor.copy(alpha = 0.5f)
-            ),
-            enabled = !uiState.isButtonLoading
-        ) {
-            if (uiState.isButtonLoading) {
-                CircularProgressIndicator(color = Color.White)
-            } else {
-                Text(
-                    text = "Save",
-                    fontFamily = SfDisplay,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp,
-                )
-            }
-        }
-    }
-}
 
 @Preview(showSystemUi = true)
 @Composable

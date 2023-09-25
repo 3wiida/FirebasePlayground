@@ -7,6 +7,7 @@ object Constants {
     const val REALTIME_DATABASE_SCREEN_ROUTE = "REALTIME_DATABASE_SCREEN_ROUTE"
     const val FIRESTORE_DATABASE_SCREEN_ROUTE = "FIRESTORE_DATABASE_SCREEN_ROUTE"
     const val CLOUD_STORAGE_SCREEN_ROUTE = "CLOUD_STORAGE_SCREEN_ROUTE"
+    const val CLOUD_MESSAGING_SCREEN_ROUTE = "CLOUD_MESSAGING_SCREEN_ROUTE"
     const val ROOT_SCREEN_ROUTE = "ROOT_SCREEN_ROUTE"
     const val AUTH_SCREENS_ROUTE = "AUTH_SCREENS_ROUTE"
 
@@ -23,12 +24,16 @@ object Constants {
 
     //Firestore Database
     const val SCHOOLS_COLLECTION = "schools"
-    const val IMAGES_COLLECTION = "schools"
-    const val IMAGE_ID_FIELD = "id"
-    const val IMAGE_DOWNLOAD_URL = "url"
     const val NAME_FIELD = "name"
     const val ADDRESS_FIELD = "address"
 
     //Cloud Storage
     const val IMAGES_REF = "images"
+
+
+
+    //Notification
+    const val NOTIFICATION_CHANNEL_ID = "FIREBASE_PLAYGROUND_NOTIFICATION_CHANNEL_ID"
+    const val NOTIFICATION_CHANNEL_NAME = "Firebase Playground Notification Channel"
+    const val NOTIFICATION_CHANNEL_DESCRIPTION = "This is the notification channel for firebase playground"
 }

@@ -6,15 +6,18 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.mahmoudibrahem.firebaseplayground.pojo.School
-import com.mahmoudibrahem.firebaseplayground.ui.screens.realtime_database.SaveAction
-import com.mahmoudibrahem.firebaseplayground.util.Constants
+import com.mahmoudibrahem.firebaseplayground.util.Constants.NAME_FIELD
+import com.mahmoudibrahem.firebaseplayground.util.Constants.SCHOOLS_REF_KEY
 import javax.inject.Inject
 
 class RealtimeDatabaseRepositoryImpl @Inject constructor(
     private val database: FirebaseDatabase
 ) : RealtimeDatabaseRepository {
+
+    private val schoolRef = database.getReference(SCHOOLS_REF_KEY)
+
     override fun observeSchoolsUpdates(onUpdate: (DataSnapshot) -> Unit) {
-        database.getReference(Constants.SCHOOLS_REF_KEY).addValueEventListener(
+        database.getReference(SCHOOLS_REF_KEY).addValueEventListener(
             object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     onUpdate.invoke(snapshot)
@@ -28,20 +31,67 @@ class RealtimeDatabaseRepositoryImpl @Inject constructor(
         )
     }
 
-    override fun upsertSchool(school: School, action: SaveAction): Task<Void>? {
-        val id = if (action == SaveAction.ADD_NEW)
-            database.getReference(Constants.SCHOOLS_REF_KEY).push().key
-        else school.id
-
+    override fun addSchool(school: School): Task<Void>? {
+        val id = schoolRef.push().key
         return if (id != null) {
             val s = School(id = id, name = school.name, address = school.address)
-            database.getReference(Constants.SCHOOLS_REF_KEY).child(id).setValue(s)
+            schoolRef.child(id).setValue(s)
         } else {
             null
         }
     }
 
+    override fun editSchool(schoolId: String, newName: String, newAddress: String): Task<Void> {
+        val s = School(id = schoolId, name = newName, address = newAddress)
+        return schoolRef.child(schoolId).setValue(s)
+    }
+
     override fun deleteSchool(school: School): Task<Void> {
-        return database.getReference(Constants.SCHOOLS_REF_KEY).child(school.id).removeValue()
+        return schoolRef.child(school.id).removeValue()
+    }
+
+    override fun orderSchoolsASC(onReceiveData: (DataSnapshot) -> Unit) {
+        val query = schoolRef.orderByChild(NAME_FIELD)
+        query.addListenerForSingleValueEvent(
+            object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    onReceiveData.invoke(snapshot)
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+
+                }
+            }
+        )
+    }
+
+    override fun orderSchoolsDES(onReceiveData: (DataSnapshot) -> Unit) {
+        val query = schoolRef.orderByChild(NAME_FIELD)
+        query.addListenerForSingleValueEvent(
+            object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    onReceiveData.invoke(snapshot)
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+
+                }
+            }
+        )
+    }
+
+    override fun searchForSchool(query: String, onReceiveData: (DataSnapshot) -> Unit) {
+        val databaseQuery = schoolRef.orderByChild(NAME_FIELD).equalTo(query)
+        databaseQuery.addListenerForSingleValueEvent(
+            object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    onReceiveData.invoke(snapshot)
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+
+                }
+            }
+        )
     }
 }

@@ -1,12 +1,12 @@
 package com.mahmoudibrahem.firebaseplayground.ui.screens.auth.email_password
 
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.mahmoudibrahem.firebaseplayground.repository.auth_repository.AuthRepository
-import com.mahmoudibrahem.firebaseplayground.util.FirebaseResult
 import com.mahmoudibrahem.firebaseplayground.util.PossibleFormErrors
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
 @HiltViewModel
@@ -14,56 +14,75 @@ class EmailPasswordRegisterViewModel @Inject constructor(
     private val authRepository: AuthRepository
 ) : ViewModel() {
 
-    val registerState = mutableStateOf<FirebaseResult<*>>(FirebaseResult.Empty)
-    val loginState = mutableStateOf<FirebaseResult<*>>(FirebaseResult.Empty)
+    private val _uiState = MutableStateFlow(EmailPasswordUIState())
+    val uiState = _uiState.asStateFlow()
 
+    fun onEmailChanged(newValue: String) {
+        _uiState.update { it.copy(email = newValue) }
+    }
 
-    val email = mutableStateOf("")
-    val password = mutableStateOf("")
-    val formErrors = mutableStateListOf<PossibleFormErrors>()
+    fun onPasswordChanged(newValue: String) {
+        _uiState.update { it.copy(password = newValue) }
+    }
 
-    fun registerUser() {
+    fun onRegisterClicked() {
         isFormValid()
-        if (formErrors.isEmpty()) {
-            registerState.value = FirebaseResult.Loading
+        if (_uiState.value.errors.isEmpty()) {
+            _uiState.update { it.copy(errorMsg = "", successMsg = "", isRegisterLoading = true) }
             authRepository.registerEmailPassword(
-                email = email.value,
-                password = password.value
-            ).addOnSuccessListener {
-                it.user?.uid?.let { uid ->
-                    registerState.value = FirebaseResult.Success(data = uid)
+                email = _uiState.value.email,
+                password = _uiState.value.password
+            ).addOnSuccessListener { result ->
+                _uiState.update {
+                    it.copy(
+                        successMsg = "Success UID = ${result.user?.uid}",
+                        isRegisterLoading = false
+                    )
                 }
             }.addOnFailureListener { exception ->
-                exception.message?.let { msg ->
-                    registerState.value = FirebaseResult.Failure(msg = msg)
+                _uiState.update {
+                    it.copy(
+                        errorMsg = exception.message.toString(),
+                        isRegisterLoading = false
+                    )
                 }
             }
         }
     }
 
-    fun loginUser() {
+    fun onLoginClicked() {
         isFormValid()
-        if (formErrors.isEmpty()) {
-            loginState.value = FirebaseResult.Loading
+        if (_uiState.value.errors.isEmpty()) {
+            _uiState.update { it.copy(errorMsg = "", successMsg = "", isLoginLoading = true) }
             authRepository.loginEmailPassword(
-                email = email.value,
-                password = password.value
-            ).addOnSuccessListener {
-                it.user?.uid?.let { uid -> loginState.value = FirebaseResult.Success(data = uid) }
+                email = _uiState.value.email,
+                password = _uiState.value.password
+            ).addOnSuccessListener { result ->
+                _uiState.update {
+                    it.copy(
+                        successMsg = "Success UID = ${result.user?.uid}",
+                        isLoginLoading = false
+                    )
+                }
             }.addOnFailureListener { exception ->
-                exception.message?.let { msg ->
-                    loginState.value = FirebaseResult.Failure(msg = msg)
+                _uiState.update {
+                    it.copy(
+                        errorMsg = exception.message.toString(),
+                        isLoginLoading = false
+                    )
                 }
             }
         }
     }
 
     private fun isFormValid() {
-        formErrors.clear()
-        if (!email.value.matches(Regex("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}\$")) || email.value.isEmpty())
-            formErrors.add(PossibleFormErrors.EMAIL_INVALID)
-        if (password.value.length < 8)
-            formErrors.add(PossibleFormErrors.PASSWORD_INVALID)
+        _uiState.value.errors.clear()
+        val email = _uiState.value.email
+        val password = _uiState.value.password
+        if (!email.matches(Regex("^[\\w-.]+@([\\w-]+\\.)+[\\w-]{2,4}\$")) || email.isEmpty())
+            _uiState.value.errors.add(PossibleFormErrors.EMAIL_INVALID)
+        if (password.length < 8)
+            _uiState.value.errors.add(PossibleFormErrors.PASSWORD_INVALID)
     }
 
 }

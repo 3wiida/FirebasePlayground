@@ -8,6 +8,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import javax.inject.Inject
+import com.mahmoudibrahem.firebaseplayground.ui.screens.realtime_database.SaveAction
+import com.mahmoudibrahem.firebaseplayground.util.PossibleFormErrors
 
 @HiltViewModel
 class FirestoreViewModel @Inject constructor(
@@ -118,44 +120,27 @@ class FirestoreViewModel @Inject constructor(
     }
 
     fun onSaveBtnClicked() {
-        _uiState.update { it.copy(isButtonLoading = true) }
-        if (_uiState.value.addOrUpdate == SaveAction.ADD_NEW) {
-            firestoreRepository.addSchool(
-                School(
-                    name = _uiState.value.schoolName,
-                    address = _uiState.value.schoolAddress
-                )
-            ).addOnSuccessListener {
-                _uiState.update {
-                    it.copy(
-                        successMsg = "Added Successfully",
-                        isButtonLoading = false,
-                        schoolName = "",
-                        schoolAddress = ""
+        isFormValid(
+            schoolName = _uiState.value.schoolName,
+            schoolAddress = _uiState.value.schoolAddress
+        )
+        if (_uiState.value.formErrors.isEmpty()) {
+
+
+            _uiState.update { it.copy(isButtonLoading = true) }
+            if (_uiState.value.addOrUpdate == SaveAction.ADD_NEW) {
+                firestoreRepository.addSchool(
+                    School(
+                        name = _uiState.value.schoolName,
+                        address = _uiState.value.schoolAddress
                     )
-                }
-                onBottomSheetDismiss()
-            }.addOnFailureListener { exception ->
-                _uiState.update {
-                    it.copy(
-                        errorMsg = exception.message.toString(),
-                        isButtonLoading = false
-                    )
-                }
-            }
-        } else {
-            firestoreRepository.editSchool(
-                schoolId = _uiState.value.schoolToEdit?.id!!,
-                newName = _uiState.value.schoolName,
-                newAddress = _uiState.value.schoolAddress
-            )
-                .addOnSuccessListener {
+                ).addOnSuccessListener {
                     _uiState.update {
                         it.copy(
-                            successMsg = "Edited Successfully",
+                            successMsg = "Added Successfully",
                             isButtonLoading = false,
                             schoolName = "",
-                            schoolAddress = "",
+                            schoolAddress = ""
                         )
                     }
                     onBottomSheetDismiss()
@@ -167,13 +152,40 @@ class FirestoreViewModel @Inject constructor(
                         )
                     }
                 }
+            } else {
+                firestoreRepository.editSchool(
+                    schoolId = _uiState.value.schoolToEdit?.id!!,
+                    newName = _uiState.value.schoolName,
+                    newAddress = _uiState.value.schoolAddress
+                )
+                    .addOnSuccessListener {
+                        _uiState.update {
+                            it.copy(
+                                successMsg = "Edited Successfully",
+                                isButtonLoading = false,
+                                schoolName = "",
+                                schoolAddress = "",
+                            )
+                        }
+                        onBottomSheetDismiss()
+                    }.addOnFailureListener { exception ->
+                        _uiState.update {
+                            it.copy(
+                                errorMsg = exception.message.toString(),
+                                isButtonLoading = false
+                            )
+                        }
+                    }
+            }
         }
-
     }
 
-}
+    private fun isFormValid(schoolName: String, schoolAddress: String) {
+        _uiState.value.formErrors.clear()
+        if (schoolName.isEmpty())
+            _uiState.value.formErrors.add(PossibleFormErrors.INVALID_SCHOOL_NAME)
+        if (schoolAddress.isEmpty())
+            _uiState.value.formErrors.add(PossibleFormErrors.INVALID_SCHOOL_ADDRESS)
+    }
 
-enum class SaveAction {
-    UPDATE,
-    ADD_NEW
 }

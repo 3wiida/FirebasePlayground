@@ -18,4 +18,20 @@
     <string name="selectimage">SelectImage</string>
     <string name="show_all_images">show all Images</string>
     <string name="add_caption">add caption</string>
+    <string name="cloud_messaging">Cloud Messaging</string>
+    <string name="cloud_messaging_des">You will receive a notification from this app sending from firebase every day at 12 pm. this notification may be late for few minuets</string>
+    <string name="remote_config">Remote Config</string>
+    <string name="remote_config_des">Fetch app version form firebase remote config on clicking in the button below.\nWhen listen button below clicked any update in app version parameter in remote config will be automatically reflect in the text down</string>
+    <string name="listen_to_app_version_updates">Listen to app version updates</string>
+    <string name="fetch">Fetch</string>
+    <string name="app_version_is"><![CDATA[App version is  -> %1$s]]></string>
+    <string name="realtime_database">Realtime Database</string>
+    <string name="address">Address : %1$s</string>
+    <string name="save">Save</string>
+    <string name="e_mail">E-mail</string>
+    <string name="password">Password</string>
+    <string name="invalid_password">Invalid Password</string>
+    <string name="invalid_email_address">Invalid Email Address</string>
+    <string name="register">Register</string>
+    <string name="login">Login</string>
 </resources>

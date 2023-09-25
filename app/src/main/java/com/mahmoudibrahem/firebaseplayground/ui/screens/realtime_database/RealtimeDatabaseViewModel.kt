@@ -1,15 +1,14 @@
 package com.mahmoudibrahem.firebaseplayground.ui.screens.realtime_database
 
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.database.ktx.getValue
 import com.mahmoudibrahem.firebaseplayground.pojo.School
 import com.mahmoudibrahem.firebaseplayground.repository.realtime_db_repository.RealtimeDatabaseRepository
-import com.mahmoudibrahem.firebaseplayground.util.FirebaseResult
 import com.mahmoudibrahem.firebaseplayground.util.PossibleFormErrors
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -17,74 +16,170 @@ import javax.inject.Inject
 class RealtimeDatabaseViewModel @Inject constructor(
     private val databaseRepository: RealtimeDatabaseRepository
 ) : ViewModel() {
-
-    val upsertSchoolState = mutableStateOf<FirebaseResult<*>>(FirebaseResult.Empty)
-    val deleteSchoolState = mutableStateOf<FirebaseResult<*>>(FirebaseResult.Empty)
-    val schoolList = mutableStateListOf<School>()
-    val formErrors = mutableStateListOf<PossibleFormErrors>()
-    var isLoadingList = mutableStateOf(true)
+    private val _uiState = MutableStateFlow(RealtimeDatabaseUiState())
+    val uiState = _uiState.asStateFlow()
 
     init {
         observeSchoolUpdates()
     }
 
-    fun upsertSchool(school: School, action: SaveAction) {
-        upsertSchoolState.value = FirebaseResult.Loading
-        val task = databaseRepository.upsertSchool(
-            school = School(
-                id = school.id,
-                name = school.name,
-                address = school.address
-            ),
-            action = action
-        )
-        if (task == null) {
-            upsertSchoolState.value =
-                FirebaseResult.Failure(msg = "Can't create id for school right now, try again later")
-        } else {
-            task.addOnSuccessListener {
-                upsertSchoolState.value = FirebaseResult.Success(data = "School Added Successfully")
-            }.addOnFailureListener {
-                upsertSchoolState.value = FirebaseResult.Failure(msg = it.message.toString())
-
-            }
-        }
-    }
-
-    fun deleteSchool(school: School) {
-        deleteSchoolState.value = FirebaseResult.Loading
-        databaseRepository.deleteSchool(school).addOnSuccessListener {
-            deleteSchoolState.value = FirebaseResult.Success(data = "Deleted Successfully")
-        }.addOnFailureListener {
-            deleteSchoolState.value = FirebaseResult.Failure(msg = it.message.toString())
-        }
-    }
-
     private fun observeSchoolUpdates() {
         databaseRepository.observeSchoolsUpdates { dataSnapshot ->
-            schoolList.clear()
+            val schoolList = mutableListOf<School>()
             viewModelScope.launch {
                 dataSnapshot.children.forEach { child ->
-                    child.getValue<School>()?.let {
+                    child.getValue(School::class.java)?.let {
                         schoolList.add(it)
                     }
+                    _uiState.update { it.copy(schoolList = schoolList) }
                 }
-                isLoadingList.value = false
             }
         }
     }
 
-    fun isFormValid(schoolName: String, schoolAddress: String) {
-        formErrors.clear()
+    fun onSearchQueryChanged(newQuery: String) {
+        _uiState.update { it.copy(searchQuery = newQuery) }
+    }
+
+    fun onSchoolNameChanged(newValue: String) {
+        _uiState.update { it.copy(schoolName = newValue) }
+    }
+
+    fun onSchoolAddressChanged(newValue: String) {
+        _uiState.update { it.copy(schoolAddress = newValue) }
+    }
+
+    fun onAddButtonClicked() {
+        _uiState.update { it.copy(showBottomSheet = true, schoolName = "", schoolAddress = "") }
+    }
+
+    fun onOrderAscClicked() {
+        databaseRepository.orderSchoolsASC { list ->
+            val schoolList = mutableListOf<School>()
+            viewModelScope.launch {
+                list.children.forEach { dataSnapShot ->
+                    dataSnapShot.getValue(School::class.java)?.let { schoolList.add(it) }
+                }
+                _uiState.update { it.copy(schoolList = schoolList) }
+            }
+        }
+    }
+
+    fun onOrderDesClicked() {
+        databaseRepository.orderSchoolsDES { list ->
+            val schoolList = mutableListOf<School>()
+            viewModelScope.launch {
+                list.children.forEach { dataSnapShot ->
+                    dataSnapShot.getValue(School::class.java)?.let { schoolList.add(it) }
+                }
+                _uiState.update { it.copy(schoolList = schoolList.reversed()) }
+            }
+        }
+    }
+
+    fun onSearchClicked() {
+        databaseRepository.searchForSchool(query = _uiState.value.searchQuery) { list ->
+            val schoolList = mutableListOf<School>()
+            viewModelScope.launch {
+                list.children.forEach { dataSnapShot ->
+                    dataSnapShot.getValue(School::class.java)?.let { schoolList.add(it) }
+                }
+                _uiState.update { it.copy(schoolList = schoolList.reversed()) }
+            }
+        }
+    }
+
+    fun onDeleteSchoolClicked(school: School) {
+        databaseRepository.deleteSchool(school).addOnSuccessListener {
+            _uiState.update { it.copy(successMsg = "Deleted Successfully") }
+        }.addOnFailureListener { exception ->
+            _uiState.update { it.copy(errorMsg = exception.message.toString()) }
+        }
+    }
+
+    fun onEditSchoolClicked(school: School) {
+        _uiState.update {
+            it.copy(
+                showBottomSheet = true,
+                schoolName = school.name,
+                schoolAddress = school.address,
+                addOrUpdate = SaveAction.UPDATE,
+                schoolToEdit = school.id
+            )
+        }
+    }
+
+    fun onSaveBtnClicked() {
+        isFormValid(
+            schoolName = _uiState.value.schoolName,
+            schoolAddress = _uiState.value.schoolAddress
+        )
+        if (_uiState.value.formErrors.isEmpty()) {
+            _uiState.update { it.copy(isSaveBtnLoading = true, errorMsg = "", successMsg = "") }
+            if (_uiState.value.addOrUpdate == SaveAction.ADD_NEW) {
+                databaseRepository.addSchool(
+                    School(
+                        name = _uiState.value.schoolName,
+                        address = _uiState.value.schoolAddress
+                    )
+                )?.addOnSuccessListener {
+                    _uiState.update {
+                        it.copy(
+                            successMsg = "Added Successfully",
+                            isSaveBtnLoading = false,
+                            schoolName = "",
+                            schoolAddress = ""
+                        )
+                    }
+                    onBottomSheetDismiss()
+                }?.addOnFailureListener { exception ->
+                    _uiState.update {
+                        it.copy(
+                            errorMsg = exception.message.toString(),
+                            isSaveBtnLoading = false
+                        )
+                    }
+                }
+            } else {
+                databaseRepository.editSchool(
+                    schoolId = _uiState.value.schoolToEdit,
+                    newName = _uiState.value.schoolName,
+                    newAddress = _uiState.value.schoolAddress
+                )
+                    .addOnSuccessListener {
+                        _uiState.update {
+                            it.copy(
+                                successMsg = "Edited Successfully",
+                                isSaveBtnLoading = false,
+                                schoolName = "",
+                                schoolAddress = "",
+                            )
+                        }
+                        onBottomSheetDismiss()
+                    }.addOnFailureListener { exception ->
+                        _uiState.update {
+                            it.copy(
+                                errorMsg = exception.message.toString(),
+                                isSaveBtnLoading = false
+                            )
+                        }
+                    }
+            }
+        }
+    }
+
+    fun onBottomSheetDismiss() {
+        _uiState.update { it.copy(showBottomSheet = false) }
+    }
+
+
+    private fun isFormValid(schoolName: String, schoolAddress: String) {
+        _uiState.value.formErrors.clear()
         if (schoolName.isEmpty())
-            formErrors.add(PossibleFormErrors.INVALID_SCHOOL_NAME)
+            _uiState.value.formErrors.add(PossibleFormErrors.INVALID_SCHOOL_NAME)
         if (schoolAddress.isEmpty())
-            formErrors.add(PossibleFormErrors.INVALID_SCHOOL_ADDRESS)
+            _uiState.value.formErrors.add(PossibleFormErrors.INVALID_SCHOOL_ADDRESS)
     }
 
 }
 
-enum class SaveAction {
-    UPDATE,
-    ADD_NEW
-}
