@@ -50,7 +50,14 @@ class RealtimeDatabaseViewModel @Inject constructor(
     }
 
     fun onAddButtonClicked() {
-        _uiState.update { it.copy(showBottomSheet = true, schoolName = "", schoolAddress = "") }
+        _uiState.update {
+            it.copy(
+                showBottomSheet = true,
+                schoolName = "",
+                schoolAddress = "",
+                addOrUpdate = SaveAction.ADD_NEW
+            )
+        }
     }
 
     fun onOrderAscClicked() {
